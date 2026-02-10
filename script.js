@@ -42,6 +42,29 @@ yesButton.addEventListener('click', () => {
 });
 
 // ========================================
+// NO BUTTON SHRINKING INTERACTION
+// ========================================
+
+const noButton = document.getElementById('noButton');
+let noButtonScale = 1;
+
+noButton.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    // Shrink by 20% each click
+    noButtonScale -= 0.2;
+
+    if (noButtonScale <= 0) {
+        // Completely disappear
+        noButton.style.display = 'none';
+    } else {
+        // Apply shrinking effect
+        noButton.style.transform = `scale(${noButtonScale})`;
+        noButton.style.opacity = noButtonScale;
+    }
+});
+
+// ========================================
 // OPTIMIZED CONFETTI ANIMATION
 // ========================================
 
@@ -130,6 +153,30 @@ function animateConfetti() {
         animationFrame = requestAnimationFrame(animateConfetti);
     }
 }
+
+// ========================================
+// IMAGE CLICK TO ENLARGE
+// ========================================
+
+const imageModal = document.getElementById('imageModal');
+const modalImage = imageModal.querySelector('img');
+const photoImages = document.querySelectorAll('.photo-float img');
+
+// Add click event to all photos
+photoImages.forEach(img => {
+    img.addEventListener('click', () => {
+        modalImage.src = img.src;
+        modalImage.alt = img.alt;
+        imageModal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    });
+});
+
+// Close modal when clicking on it
+imageModal.addEventListener('click', () => {
+    imageModal.classList.remove('active');
+    document.body.style.overflow = ''; // Re-enable scrolling
+});
 
 // ========================================
 // SMOOTH SCROLL TO TOP ON LOAD
