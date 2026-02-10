@@ -1,6 +1,6 @@
 # Valentine Site 💌
 
-A small, intentional Valentine’s Day website created as part of a handwritten card + QR code experience.
+A small, intentional Valentine’s Day website for my girlfriend. Created as part of a handwritten card + QR code experience. 
 
 This project is designed to be **mobile-first**, **static**, and **personal**. The physical card carries the letter; the website carries the moment.
 
