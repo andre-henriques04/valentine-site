@@ -148,15 +148,8 @@ body {
 .text-block {
     max-width: 680px;
     margin: 2.5rem auto;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
-.text-block.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
 
 .text-block h2 {
     font-size: 1.75rem;
@@ -202,16 +195,9 @@ body {
     box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 153, 153, 0.1);
-    opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.8s ease;
     position: relative;
 }
 
-.photo-float.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
 
 .photo-float img {
     width: 100%;
