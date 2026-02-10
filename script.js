@@ -1,10 +1,10 @@
 // ========================================
-// SCROLL REVEAL ANIMATIONS
+// INTERSECTION OBSERVER FOR SCROLL REVEALS
 // ========================================
 
 const observerOptions = {
-    threshold: 0.2,
-    rootMargin: '0px 0px -100px 0px'
+    threshold: 0.15,
+    rootMargin: '0px 0px -50px 0px'
 };
 
 const observer = new IntersectionObserver((entries) => {
@@ -15,9 +15,9 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe all sections except the opening (which auto-animates)
-document.querySelectorAll('.section:not(.opening)').forEach(section => {
-    observer.observe(section);
+// Observe text blocks and photos
+document.querySelectorAll('.text-block, .photo-float').forEach(el => {
+    observer.observe(el);
 });
 
 // ========================================
@@ -26,21 +26,12 @@ document.querySelectorAll('.section:not(.opening)').forEach(section => {
 
 const yesButton = document.getElementById('yesButton');
 const responseSection = document.getElementById('response');
-const canvas = document.getElementById('confetti');
-const ctx = canvas.getContext('2d');
-
-// Set canvas size
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
 
 yesButton.addEventListener('click', () => {
-    // Hide question section and show response
-    yesButton.closest('.section').style.display = 'none';
+    // Hide question section
+    document.querySelector('.question-section').style.display = 'none';
+
+    // Show response section
     responseSection.classList.add('show');
 
     // Scroll to response
@@ -51,30 +42,35 @@ yesButton.addEventListener('click', () => {
 });
 
 // ========================================
-// CONFETTI ANIMATION
+// OPTIMIZED CONFETTI ANIMATION
 // ========================================
 
-class ConfettiPiece {
+const canvas = document.getElementById('confetti');
+const ctx = canvas.getContext('2d', { alpha: true });
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Confetti {
     constructor() {
         this.x = Math.random() * canvas.width;
         this.y = -20;
-        this.size = Math.random() * 8 + 4;
-        this.speedY = Math.random() * 3 + 2;
+        this.size = Math.random() * 6 + 3;
+        this.speedY = Math.random() * 4 + 3;
         this.speedX = Math.random() * 2 - 1;
-        this.color = this.getRandomColor();
+        this.color = this.randomColor();
         this.rotation = Math.random() * 360;
-        this.rotationSpeed = Math.random() * 10 - 5;
+        this.rotationSpeed = Math.random() * 8 - 4;
+        this.isHeart = Math.random() > 0.6;
     }
 
-    getRandomColor() {
-        const colors = [
-            '#ff6b9d',  // Pink
-            '#ffd6d6',  // Light pink
-            '#ffb3ba',  // Rose
-            '#cc8b86',  // Muted red
-            '#ff4757',  // Red
-            '#ffffff'   // White
-        ];
+    randomColor() {
+        const colors = ['#ff6b6b', '#ff9999', '#ffb3ba', '#ff8787', '#ffffff'];
         return colors[Math.floor(Math.random() * colors.length)];
     }
 
@@ -83,8 +79,8 @@ class ConfettiPiece {
         this.x += this.speedX;
         this.rotation += this.rotationSpeed;
 
-        // Add some wave motion
-        this.x += Math.sin(this.y / 30) * 0.5;
+        // Gentle wave motion
+        this.x += Math.sin(this.y / 40) * 0.4;
     }
 
     draw() {
@@ -92,15 +88,12 @@ class ConfettiPiece {
         ctx.translate(this.x, this.y);
         ctx.rotate((this.rotation * Math.PI) / 180);
 
-        // Draw heart shape
-        if (Math.random() > 0.5) {
-            ctx.fillStyle = this.color;
-            ctx.font = `${this.size * 2}px Arial`;
+        if (this.isHeart) {
+            ctx.font = `${this.size * 2.5}px Arial`;
             ctx.fillText('❤️', -this.size, this.size);
         } else {
-            // Draw confetti piece
             ctx.fillStyle = this.color;
-            ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size);
+            ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size * 1.5);
         }
 
         ctx.restore();
@@ -108,12 +101,12 @@ class ConfettiPiece {
 }
 
 let confettiPieces = [];
-let animationId;
+let animationFrame;
 
 function createConfetti() {
-    // Create initial burst
-    for (let i = 0; i < 150; i++) {
-        confettiPieces.push(new ConfettiPiece());
+    // Create burst
+    for (let i = 0; i < 120; i++) {
+        confettiPieces.push(new Confetti());
     }
     animateConfetti();
 }
@@ -121,56 +114,25 @@ function createConfetti() {
 function animateConfetti() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    confettiPieces.forEach((piece, index) => {
-        piece.update();
-        piece.draw();
+    // Update and draw all pieces
+    for (let i = confettiPieces.length - 1; i >= 0; i--) {
+        confettiPieces[i].update();
+        confettiPieces[i].draw();
 
-        // Remove pieces that are off screen
-        if (piece.y > canvas.height + 20) {
-            confettiPieces.splice(index, 1);
+        // Remove off-screen pieces
+        if (confettiPieces[i].y > canvas.height + 50) {
+            confettiPieces.splice(i, 1);
         }
-    });
+    }
 
-    // Continue animation if there are pieces left
+    // Continue if pieces remain
     if (confettiPieces.length > 0) {
-        animationId = requestAnimationFrame(animateConfetti);
+        animationFrame = requestAnimationFrame(animateConfetti);
     }
 }
 
 // ========================================
-// SMOOTH SCROLL BEHAVIOR
-// ========================================
-
-// Ensure smooth scrolling on all browsers
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    });
-});
-
-// ========================================
-// PERFORMANCE: Lazy load images
-// ========================================
-
-if ('loading' in HTMLImageElement.prototype) {
-    // Browser supports lazy loading natively
-    const images = document.querySelectorAll('img[loading="lazy"]');
-    images.forEach(img => {
-        img.src = img.src;
-    });
-} else {
-    // Fallback for browsers that don't support lazy loading
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js';
-    document.body.appendChild(script);
-}
-
-// ========================================
-// PREVENT SCROLL DURING LOAD
+// SMOOTH SCROLL TO TOP ON LOAD
 // ========================================
 
 window.addEventListener('load', () => {
